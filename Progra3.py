@@ -40,6 +40,12 @@ def close_borders(img):
     img_aux[img_aux != 1] = 0
     return img_aux
 
+def resize_Image(img):
+    height = img.shape[0]
+    width = img.shape[1]
+    res = cv.resize(img,(200, 200), interpolation = cv.INTER_NEAREST)
+    return res
+
 #Exceute all the process to convert the image
 def convert_image(img):
     gray_scale_Image= cv.cvtColor(img, cv.COLOR_BGR2GRAY).T
@@ -47,6 +53,8 @@ def convert_image(img):
     black_white_image = scipy.ndimage.binary_fill_holes(gray_scale_image_borders).astype(int)
     black_white_image[black_white_image == 1] = 255
     #black_white_image[black_white_image == 0] = 255
+    black_white_image = black_white_image[:404]
+    black_white_image = resize_Image(black_white_image)
     return black_white_image
 
 def run():
@@ -63,8 +71,8 @@ def run():
 
        observation = p.getScreenRGB()
        new_image = convert_image(observation);
-       cv.imwrite( "Imagenes/Gray_Image"+str(i)+".jpg", new_image );
-       action = None
+       #cv.imwrite( "Imagenes/Gray_Image"+str(i)+".jpg", new_image );
+       action = 119
        reward = p.act(action)
 
 run()
