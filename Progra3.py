@@ -59,6 +59,11 @@ def convert_image(img):
 
 
 ################################################################
+#Ejemplos
+#https://github.com/pytorch/examples/blob/master/reinforcement_learning/actor_critic.py
+#https://github.com/pytorch/examples/blob/master/mnist/main.py
+#https://github.com/pytorch/examples
+
 #Red
 import torch
 import torch.nn as nn
@@ -93,6 +98,7 @@ class Net(nn.Module):
 
 CN = Net()              #Instancia la red
 
+#Por el momento no hace nada
 def train(model, data):
     model.train()
     output = model(data)
