@@ -5,6 +5,43 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage
 
+import torch
+import torch.nn.functional as F
+
+
+class CNN(torch.nn.Module):
+
+    def __init__(self):
+        super(CNN,self).__init__()
+
+        self.conv1 = torch.nn.Conv2d(1,1,kernel_size=11,stride=1,padding=0)   #input channel, output channel,kernel,stride,padding...
+        self.pool = torch.nn.MaxPool2d(200,stride=2,padding=0)
+
+        #Fully connected 
+        self.fc1 = torch.nn.Linear(200,200) 
+        #self.fc2 = torch.nn.Linear(1024, 2)
+
+    def forward(self,x):
+        print("Forward")
+        #x = self.pool(F.relu(self.conv1(x)))
+        print("pool")
+        x = x.view(x.size(0),-1)
+        print("view")
+        x = F.relu(self.fc1(x.float()))
+        print("relu Fully")
+        x = self.fc1(x.float())
+        print("fin")
+        
+        return(x)
+
+#Cálculo para saber el tamaño de la salida
+def outputSize(in_size,kernel_size,stride,padding):
+    return (in_size - kernel_size + 2*padding)/stride + 1
+    
+
+
+########################## MANEJO DE LAS IMÁGENES ################################
+
 #Change many pixeles to 64
 def change_borders(img):
     img[img ==77] = 64
@@ -57,7 +94,13 @@ def convert_image(img):
     black_white_image = resize_Image(black_white_image)
     return black_white_image
 
+
+############################## ENTRENAMIENTO #####################################
+
+
+
 def run():
+    model = CNN()
     game = FlappyBird()
     p = PLE(game, fps=30, display_screen=True)
     #agent = myAgentHere(allowed_actions=p.getActionSet())
@@ -65,15 +108,24 @@ def run():
     p.init()
     reward = 0.0
 
-    for i in range(150):
-       if p.game_over():
-               p.reset_game()
+    while (True):
+    #for i in range(150):
+        if p.game_over():
+            p.reset_game()
 
-       observation = p.getScreenRGB()
-       new_image = convert_image(observation);
-       #cv.imwrite( "Imagenes/Gray_Image"+str(i)+".jpg", new_image );
-       action = 119
-       reward = p.act(action)
+        observation = p.getScreenRGB()         #observations == state
+        new_image = convert_image(observation);
+        #cv.imwrite( "Imagenes/Gray_Image"+str(i)+".jpg", new_image );     #Guarda cada frame de cuando juega
+
+        prob = np.random.uniform()
+        pred_prob = model.forward(torch.from_numpy(new_image))
+        if (pred_prob[0][0] >= prob):
+            action = 119
+        else:
+            action = None
+            
+        #action = 119
+        reward = p.act(action)
 
 run()
 
